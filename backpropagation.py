@@ -11,7 +11,15 @@ class network:
             [neuron() for i in range(second)],
             [neuron() for i in range(third)]
         ]
-        print(self.neurons)
+
+class backpropagation:
+    def __init__(self, first, second, third):
+        self.network = network(first, second, third)
+    
+    def training(self):
+        for i in range(len(self.network.neurons)):
+            for j in range(len(self.network.neurons[i])):
+                pass
 
 def arguments():
     parser = argparse.ArgumentParser(description='Implementation of a back propagation algorithm')
@@ -23,4 +31,5 @@ def arguments():
 
 if __name__ == "__main__":
     args = arguments()
-    network = network(args.first, args.second, args.third)
+    backprop = backpropagation(args.first, args.second, args.third)
+    backprop.training()
