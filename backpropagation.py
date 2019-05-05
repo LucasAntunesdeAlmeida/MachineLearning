@@ -2,25 +2,50 @@ import argparse
 from _includes.readfile import *
 
 class neuron:
-    def __init__(self):
+    def __init__(self, inputs):
+        self.w = np.random.rand(inputs) 
+        self.y = np.float32(0.0)
+    
+    def h(self, inputs):
         pass
 
 class network:
-    def __init__(self, first, second, third):
+    def __init__(self, inputs, first, second, third):
         self.neurons = [
-            [neuron() for i in range(first)],
-            [neuron() for i in range(second)],
-            [neuron() for i in range(third)]
+            [neuron(inputs) for i in range(first)],
+            [neuron(first) for i in range(second)],
+            [neuron(second) for i in range(third)]
         ]
 
 class backpropagation:
-    def __init__(self, first, second, third):
-        self.network = network(first, second, third)
+    def __init__(self, first, second, third, matrix):
+        self.dataset = matrix
+        self.datasetT = [getColumn(matrix, i) for i in range(len(matrix[0]))]
+        self.x = self.datasetT[:-third]
+        self.y = self.datasetT[-third:]
+        self.maxTime = 10000
+        self.network = network(len(self.x), first, second, third)
+
+    def error(self, time):
+        return (self.maxTime > time)
+
+    def firstStage(self):
+        pass
+
+    def secondStage(self):
+        pass
     
+    def thirdStage(self):
+        pass
+
     def training(self):
-        for i in range(len(self.network.neurons)):
-            for j in range(len(self.network.neurons[i])):
-                pass
+        time = 0
+
+        while(self.error(time)):
+            time += 1
+            self.firstStage()
+            self.secondStage()
+            self.thirdStage()
 
 def arguments():
     parser = argparse.ArgumentParser(description='Implementation of a back propagation algorithm')
@@ -33,7 +58,5 @@ def arguments():
 
 if __name__ == "__main__":
     args = arguments()
-    matrix = readfile(args.input)
-
-    backprop = backpropagation(args.first, args.second, args.third)
+    backprop = backpropagation(args.first, args.second, args.third, readfile(args.input))
     backprop.training()
