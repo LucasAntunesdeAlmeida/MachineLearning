@@ -73,6 +73,9 @@ class Backpropagation:
             pass
     
     def thirdStage(self):
+        # since all the neurons already have the necessary data, 
+        # it runs through the entire network and make each neuron 
+        # update its respective weight
         for network in self.network.neurons:
             for neuron in network:
                 neuron.setWeight()
