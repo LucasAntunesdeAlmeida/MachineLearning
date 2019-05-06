@@ -5,11 +5,19 @@ class Neuron:
     def __init__(self, inputs):
         self.w = np.random.rand(inputs) 
         self.y = np.float32(0.0)
+        self.delta = np.float32(0.0)
     
     def h(self, neuronInput):
-        # print(self.w)
-        # print(len(neuronInput))
+        # ? self.y = np.dot(self.w, neuronInput)
         self.y = np.float32(0.0)
+    
+    def setDelta(self, w, delta):
+        # ? self.delta = np.dot(w, delta)
+        self.delta = np.float32(0.0)
+    
+    def setWeight(self):
+        # ? w' = w + ....
+        self.w = self.w
 
 class Network:
     def __init__(self, inputs, first, second, third):
@@ -18,6 +26,21 @@ class Network:
             [Neuron(first) for i in range(second)],
             [Neuron(second) for i in range(third)]
         ]
+    
+    def checkLayer(self, layer):
+        if layer >= 0 and layer < len(self.neurons):
+            return True
+        else:
+            print("nonexistent layer: "+str(layer))
+            return False
+
+    def getY(self, layer):
+        if self.checkLayer(layer):
+            return [neuron.y for neuron in self.neurons[layer]]
+    
+    def getW(self, layer):
+        if self.checkLayer(layer):
+            return [neuron.w for neuron in self.neurons[layer]]
 
 class Backpropagation:
     def __init__(self, first, second, third, matrix):
@@ -27,7 +50,6 @@ class Backpropagation:
         self.y = self.datasetT[-third:]
         self.maxTime = 1
         self.network = Network(len(self.x), first, second, third)
-        self.delta = self.y[:]
 
     def error(self, time):
         return (self.maxTime > time)
@@ -37,27 +59,23 @@ class Backpropagation:
         neuronInput = self.x[:]
         # presentation of the inputs to the network
         # and propagation of the outputs to the network
-        for network in self.network.neurons:
-            temp = []
+        for i in range(len(self.network.neurons)):
             # passes to the current input to the current neuron 
             # and saves the output of the neuron
-            for neuron in network:
+            for neuron in self.network.neurons[i]:
                 neuron.h(neuronInput)
-                temp.append(neuron.y)
             # copy of the output values of each layer
-            neuronInput = temp[:]
-        # error computation (desired-obtained)
-        for i in range(len(self.network.neurons[-1])):
-            self.delta[i] = self.y[i] - self.network.neurons[-1][i].y
-            # print(self.delta[i])
+            neuronInput = self.network.getY(i)
             
-
-
     def secondStage(self):
-        pass
+        # error computation (desired-obtained)
+        for network in reversed(self.network.neurons):
+            pass
     
     def thirdStage(self):
-        pass
+        for network in self.network.neurons:
+            for neuron in network:
+                neuron.setWeight()
 
     def training(self):
         time = 0
