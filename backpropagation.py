@@ -104,6 +104,10 @@ class Backpropagation:
         for respost in self.network.neurons[-1]:
             print(respost.y,end=" ")
         print()
+    
+    def test(self, x):
+        pass
+
 
 def arguments():
     parser = argparse.ArgumentParser(description='Implementation of a back propagation algorithm')
@@ -118,3 +122,4 @@ if __name__ == "__main__":
     args = arguments()
     backprop = Backpropagation(args.first, args.second, args.third, readfile(args.input))
     backprop.training()
+    backprop.test([1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1])
