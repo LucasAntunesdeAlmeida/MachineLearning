@@ -1,23 +1,31 @@
 import argparse
+import numpy as np
 from _includes.readfile import *
 
 class Neuron:
     def __init__(self, inputs):
-        self.w = np.random.rand(inputs) 
+        self.w = np.random.rand(inputs)
         self.y = np.float32(0.0)
-        self.delta = np.float32(0.0)
+        self.sigma = np.float32(0.0)
+        self.alpha = np.float32(0.01)
+        self.e = np.float32(0.0)
     
+    def f(self, e):
+        return 1/(1+np.exp(-e))
+    
+    def fdx(self, e):
+        return (1-np.exp(-e)/1+np.exp(-e))
+
     def h(self, neuronInput):
-        # ? self.y = np.dot(self.w, neuronInput)
-        self.y = np.float32(0.0)
+        self.e = np.dot(neuronInput, self.w)
+        self.y = self.f(self.e)
     
-    def setDelta(self, w, delta):
-        # ? self.delta = np.dot(w, delta)
-        self.delta = np.float32(0.0)
+    def setSigma(self, w, sigma):
+        self.sigma = np.dot(w,sigma)
     
     def setWeight(self):
-        # ? w' = w + ....
-        self.w = self.w
+        for i in range(len(self.w)):
+            self.w[i] += (self.alpha*self.sigma*self.fdx(self.e))
 
 class Network:
     def __init__(self, inputs, first, second, third):
@@ -38,40 +46,43 @@ class Network:
         if self.checkLayer(layer):
             return [neuron.y for neuron in self.neurons[layer]]
     
-    def getW(self, layer):
+    def getW(self, layer, i):
         if self.checkLayer(layer):
-            return [neuron.w for neuron in self.neurons[layer]]
+            return [neuron.w[i] for neuron in self.neurons[layer]]
+    
+    def getSigma(self, layer):
+        if self.checkLayer(layer):
+            return [neuron.sigma for neuron in self.neurons[layer]]
 
 class Backpropagation:
     def __init__(self, first, second, third, matrix):
         self.dataset = matrix
         self.datasetT = [getColumn(matrix, i) for i in range(len(matrix[0]))]
-        self.x = self.datasetT[:-third]
+        self.x = np.array(self.datasetT[:-third]).T
         self.y = self.datasetT[-third:]
-        self.maxTime = 1
-        self.network = Network(len(self.x), first, second, third)
+        self.maxTime = 1000
+        self.network = Network(len(matrix[0])-third, first, second, third)
 
     def error(self, time):
         return (self.maxTime > time)
 
-    def firstStage(self):
-        # initialization that guarantees the input value of the first layer
-        neuronInput = self.x[:]
+    def firstStage(self, j):
         # presentation of the inputs to the network
         # and propagation of the outputs to the network
+        neuronInput = self.x[j]    
         for i in range(len(self.network.neurons)):
-            # passes to the current input to the current neuron 
-            # and saves the output of the neuron
             for neuron in self.network.neurons[i]:
                 neuron.h(neuronInput)
-            # copy of the output values of each layer
             neuronInput = self.network.getY(i)
-            
+        for i in range(len(self.network.neurons[-1])):
+            self.network.neurons[-1][i].sigma = self.y[i][j] - self.network.neurons[-1][i].y
+        
     def secondStage(self):
-        # error computation (desired-obtained)
-        for network in reversed(self.network.neurons):
-            pass
-    
+        # each neuron calculates its sigma error based on the errors and weights of the next layer
+        for i in reversed(range(len(self.network.neurons)-1)):
+            for j in range(len(self.network.neurons[i])):
+                self.network.neurons[i][j].setSigma(self.network.getW(i+1,j),self.network.getSigma(i+1))
+
     def thirdStage(self):
         # since all the neurons already have the necessary data, 
         # it runs through the entire network and make each neuron 
@@ -79,15 +90,20 @@ class Backpropagation:
         for network in self.network.neurons:
             for neuron in network:
                 neuron.setWeight()
+        
 
     def training(self):
         time = 0
- 
         while(self.error(time)):
             time += 1
-            self.firstStage()
-            self.secondStage()
-            self.thirdStage()
+            for i in range(len(self.x)):
+                self.firstStage(i)
+                self.secondStage()
+                self.thirdStage()
+        
+        for respost in self.network.neurons[-1]:
+            print(respost.y,end=" ")
+        print()
 
 def arguments():
     parser = argparse.ArgumentParser(description='Implementation of a back propagation algorithm')
