@@ -7,7 +7,7 @@ class Neuron:
         self.w = np.random.rand(inputs)
         self.y = np.float32(0.0)
         self.sigma = np.float32(0.0)
-        self.alpha = np.float32(0.01)
+        self.alpha = np.float32(0.001)
         self.e = np.float32(0.0)
     
     def f(self, e):
@@ -17,7 +17,7 @@ class Neuron:
         return (1-np.exp(-e)/1+np.exp(-e))
 
     def h(self, neuronInput):
-        self.e = np.dot(neuronInput, self.w)
+        self.e = np.dot(neuronInput, self.w) + 1
         self.y = self.f(self.e)
     
     def setSigma(self, w, sigma):
@@ -91,7 +91,6 @@ class Backpropagation:
             for neuron in network:
                 neuron.setWeight()
         
-
     def training(self):
         time = 0
         while(self.error(time)):
@@ -100,14 +99,20 @@ class Backpropagation:
                 self.firstStage(i)
                 self.secondStage()
                 self.thirdStage()
-        
+                
+    
+    def showResult(self):
         for respost in self.network.neurons[-1]:
             print(respost.y,end=" ")
         print()
-    
-    def test(self, x):
-        pass
 
+    def test(self, x):
+        neuronInput = x   
+        for i in range(len(self.network.neurons)):
+            for neuron in self.network.neurons[i]:
+                neuron.h(neuronInput)
+            neuronInput = self.network.getY(i)
+        self.showResult()
 
 def arguments():
     parser = argparse.ArgumentParser(description='Implementation of a back propagation algorithm')
@@ -122,4 +127,4 @@ if __name__ == "__main__":
     args = arguments()
     backprop = Backpropagation(args.first, args.second, args.third, readfile(args.input))
     backprop.training()
-    backprop.test([1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1])
+    backprop.test([1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1])
