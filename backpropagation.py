@@ -9,8 +9,7 @@ class Neuron:
         self.e = np.float32(0.0)
         self.x = []
 
-inputLayer = [Neuron(10) for i in range(10)]
-middleLayer = [Neuron(10) for i in range(15)]
+inputLayer = [Neuron(15) for i in range(15)]
 outputLayer = [Neuron(15) for i in range(4)]
 
 def f(x):
@@ -28,22 +27,14 @@ def update(neuron):
 
 def first(x, i):
     # Presentation of inputs
-    for j in range(len(inputLayer)):
-        inputLayer[j].y = x[i][j]
+    for neuron in inputLayer:
+        neuron.e = np.dot(neuron.w, x[i])
+        neuron.y = f(neuron.e)
+        neuron.x = x[i]
     
-    # Propagation
-    # l0 for l1
+    # inputLayer for outputLayer
     inputData = []
     for output in inputLayer:
-        inputData.append(output.y)
-    for neuron in middleLayer:
-        neuron.e = np.dot(neuron.w, inputData)
-        neuron.y = f(neuron.e)
-        neuron.x = inputData
-    
-    # l1 for l2
-    inputData = []
-    for output in middleLayer:
         inputData.append(output.y)
     for neuron in outputLayer:
         neuron.e = np.dot(neuron.w, inputData)
@@ -52,20 +43,20 @@ def first(x, i):
 
 def second(x, i):
     # Backpropagation of error
-    # l2 for l1
-    for j in range(len(middleLayer)):
+    # outputLayer for inputLayer
+    for j in range(len(inputLayer)):
         inputDataW = []
         inputDataSigma = []
         for output in outputLayer:
             inputDataW.append(output.w[j])
             inputDataSigma.append(output.sigma)
-        middleLayer[j].sigma = np.dot(inputDataW, inputDataSigma)
+        inputLayer[j].sigma = np.dot(inputDataW, inputDataSigma)
 
 def third(x, i):
-    # l1
-    for neuron in middleLayer:
+    # inputLayer
+    for neuron in inputLayer:
         neuron.w = update(neuron)
-    # l2
+    # outputLayer
     for neuron in outputLayer:
         neuron.w = update(neuron)
 
@@ -77,21 +68,13 @@ def showInput(input):
 
 def test(x):
     for i in range(len(x)):
-        # Presentation of inputs 
-        for j in range(len(inputLayer)):
-            inputLayer[j].y = x[i][j]
-        
-        # Propagation
-        # l0 for l1
+        # Presentation of inputs
+        for neuron in inputLayer:
+            neuron.e = np.dot(neuron.w, x[i])
+            neuron.y = f(neuron.e)
+        # inputLayer for outputLayer
         inputData = []
         for output in inputLayer:
-            inputData.append(output.y)
-        for neuron in middleLayer:
-            neuron.e = np.dot(neuron.w, inputData)
-            neuron.y = f(neuron.e)
-        # l1 for l2
-        inputData = []
-        for output in middleLayer:
             inputData.append(output.y)
         for neuron in outputLayer:
             neuron.e = np.dot(neuron.w, inputData)
