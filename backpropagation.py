@@ -6,7 +6,6 @@ class Neuron:
         self.w = np.random.rand(inputs)
         self.y = np.float32(0.0)
         self.sigma = np.float32(0.0)
-        self.e = np.float32(0.0)
         self.x = []
 
 inputLayer = [Neuron(15) for i in range(15)]
@@ -28,8 +27,7 @@ def update(neuron):
 def first(x, i):
     # Presentation of inputs
     for neuron in inputLayer:
-        neuron.e = np.dot(neuron.w, x[i])
-        neuron.y = f(neuron.e)
+        neuron.y = f(np.dot(neuron.w, x[i]))
         neuron.x = x[i]
     
     # inputLayer for outputLayer
@@ -37,8 +35,7 @@ def first(x, i):
     for output in inputLayer:
         inputData.append(output.y)
     for neuron in outputLayer:
-        neuron.e = np.dot(neuron.w, inputData)
-        neuron.y = f(neuron.e) 
+        neuron.y = f(np.dot(neuron.w, inputData)) 
         neuron.x = inputData
 
 def second(x, i):
@@ -69,16 +66,14 @@ def showInput(input):
 def test(x):
     for i in range(len(x)):
         # Presentation of inputs
-        for neuron in inputLayer:
-            neuron.e = np.dot(neuron.w, x[i])
-            neuron.y = f(neuron.e)
+        for neuron in inputLayer: 
+            neuron.y = f(np.dot(neuron.w, x[i]))
         # inputLayer for outputLayer
         inputData = []
         for output in inputLayer:
             inputData.append(output.y)
         for neuron in outputLayer:
-            neuron.e = np.dot(neuron.w, inputData)
-            neuron.y = f(neuron.e)
+            neuron.y = f(np.dot(neuron.w, inputData))
         print("\nInput : {0}".format(i))
         showInput(x[i])
         print("Output: ", end = "")
